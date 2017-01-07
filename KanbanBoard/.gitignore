@@ -1,5 +1,5 @@
 #ignore directories
-/bin/
-/obj/
+bin
+obj
 #ignore files
 project.lock.json
