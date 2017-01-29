@@ -1,1 +1,2 @@
-Backlog b =  new Backlog("test",new Date());
+let backlog:Backlog= {Title:"Item 1",StartDate:new Date()};
+

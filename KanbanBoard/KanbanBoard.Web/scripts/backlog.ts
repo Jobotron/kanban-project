@@ -1,9 +1,9 @@
-class Backlog{
-    Title:string;
-    StartDate:Date;
-    constructor (title:string,startDate:Date){
-        this.Title = title;
-        this.StartDate = startDate;
+interface Backlog{
+    readonly Title:string;
+    readonly StartDate:Date;
+}
 
-    }
+
+interface BacklogList{
+    backlogArr:Backlog[];
 }
