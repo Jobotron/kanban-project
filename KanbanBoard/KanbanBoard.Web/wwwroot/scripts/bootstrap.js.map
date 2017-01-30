@@ -1,1 +1,1 @@
-{"version":3,"file":"bootstrap.js","sourceRoot":"","sources":["../../scripts/backlog.ts","../../scripts/bootstrapper.ts"],"names":[],"mappings":"ACAA,IAAI,OAAO,GAAU,EAAC,KAAK,EAAC,QAAQ,EAAC,SAAS,EAAC,IAAI,IAAI,EAAE,EAAC,CAAC"}
+{"version":3,"file":"bootstrap.js","sourceRoot":"","sources":["../../scripts/app/bootstrapper.ts","../../scripts/backlog.ts"],"names":[],"mappings":"AAAA,IAAI,OAAO,GAAU,EAAC,KAAK,EAAC,QAAQ,EAAC,SAAS,EAAC,IAAI,IAAI,EAAE,EAAC,CAAC;AAE3D,IAAK,KAAK,GAAc,EAAC,UAAU,EAAC,CAAC,OAAO,CAAC,EAAC,CAAC"}

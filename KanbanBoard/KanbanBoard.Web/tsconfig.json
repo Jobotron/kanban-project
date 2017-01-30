@@ -6,7 +6,7 @@
     "target": "es5",
     "outFile": "wwwroot/scripts/bootstrap.js"
   },
-  "include":["scripts/*"],
+  "include":["scripts/**/*"],
 
   
   "compileOnSave": true
