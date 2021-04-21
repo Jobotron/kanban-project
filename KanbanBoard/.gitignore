@@ -2,4 +2,5 @@
 bin
 obj
 node_modules
+.vscode
 #ignore files
