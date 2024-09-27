@@ -6,7 +6,7 @@ export default  function App() {
       <div>
         <h1>Kanban board</h1>
         <KanbanComponent/>
-        <button className="accent-amber-500">add task</button>
+        <button className="border-t">add task</button>
       </div>
 )
 };
