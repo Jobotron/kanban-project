@@ -56,8 +56,9 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func Start() {
+
+	http.HandleFunc("/tasks", CreateTaskHandler)
 	http.HandleFunc("/", Handler)
-	http.HandleFunc("tasks/", CreateTaskHandler)
 	log.Println("Server started at :8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
