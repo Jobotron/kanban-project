@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"github.com/jobotron/kanban/dto"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 )
@@ -25,4 +26,18 @@ func InitDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func CreateTask(task *dto.Task) (*dto.Task, error) {
+	res, err := DB.Exec("INSERT INTO tasks (title, status) VALUES (?, ?)",
+		task.Title, task.Status)
+	if err != nil {
+		return nil, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	task.ID = int(id)
+	return task, nil
 }
