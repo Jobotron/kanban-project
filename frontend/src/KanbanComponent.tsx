@@ -1,24 +1,23 @@
 import {useState} from 'react';
 import Task from "./Task.ts";
 
-const initialTasks: Task[] = [
-    { id: 1, title: 'Task 1', status: 'todo' },
-    { id: 2, title: 'Task 2', status: 'in-progress' },
-    { id: 3, title: 'Task 3', status: 'done' }
-];
+interface KanbanComponentProps {
+    tasks: Readonly<Task[]>;
+}
 
-export default function KanbanComponent() {
-    const [tasks, setTasks] = useState(initialTasks);
+
+export default function KanbanComponent({ tasks }: Readonly<KanbanComponentProps>) {
+    const [taskList, setTaskList] = useState(tasks);
 
     const moveTask = (task: Task, newStatus: string) => {
-        setTasks(prevTasks =>
+        setTaskList(prevTasks =>
             prevTasks.map(t =>
                 t.id === task.id ? { ...t, status: newStatus } : t
             )
         );
     };
     const renderTasks = (status: string) =>
-        tasks
+        taskList
             .filter(task => task.status === status)
             .map(task => (
                 <div key={task.id} className="p-4 mb-4 bg-white rounded-lg shadow">

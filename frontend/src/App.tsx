@@ -1,12 +1,11 @@
-import './App.css';
-import KanbanComponent from "./KanbanComponent.tsx";
+import './App.css'
+import TaskManager from "./TaskManager.tsx";
 
 export default  function App() {
-  return (
+    return (
       <div>
         <h1>Kanban board</h1>
-        <KanbanComponent/>
-        <button className="border-t">add task</button>
+          <TaskManager />
       </div>
 )
 };
