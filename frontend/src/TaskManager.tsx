@@ -5,9 +5,14 @@ import {useEffect, useState} from "react";
 export default function TaskManager() {
     const [tasks, setTasks] = useState<Task[]>([]);
     useEffect(() => {
-        fetch('localhost:8080/tasks/')
-            .then((response) => response.json())
-            .then((data: Task[]) => setTasks(data))
+        fetch('http://localhost:8080/tasks')
+            .then((response) => {
+                return response.json();
+            })
+            .then((data: Task[]) => {
+                console.log(data)
+                setTasks(data)
+            })
             .catch((error) => console.error('Error fetching tasks:', error)
         )
     }, []);

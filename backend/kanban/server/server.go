@@ -5,12 +5,23 @@ import (
 	"fmt"
 	"github.com/jobotron/kanban/data"
 	"github.com/jobotron/kanban/dto"
+	"github.com/rs/cors"
 	"io"
 	"log"
 	"net/http"
 )
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+const ContentTypeJson = "application/json"
+const ContentTypeHeader = "Content-Type"
+
+func JSONMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set(ContentTypeHeader, ContentTypeJson)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func Handler(w http.ResponseWriter, _ *http.Request) {
 	_, err := fmt.Fprintln(w, "Hello, world!")
 	if err != nil {
 		log.Println(err)
@@ -26,6 +37,8 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to retrieve tasks", http.StatusInternalServerError)
 			return
 		}
+		w.Header().Set(ContentTypeHeader, ContentTypeJson)
+		w.WriteHeader(http.StatusOK)
 		err = json.NewEncoder(w).Encode(tasks)
 		if err != nil {
 			http.Error(w, "Failed to encode tasks", http.StatusInternalServerError)
@@ -53,7 +66,6 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to create task", http.StatusInternalServerError)
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		err = json.NewEncoder(w).Encode(createdTask)
 		if err != nil {
@@ -66,10 +78,21 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func Start() {
-	http.HandleFunc("/tasks", TasksHandler)
-	http.HandleFunc("/", Handler)
+	mux := http.NewServeMux()
+
+	mux.Handle("/tasks", JSONMiddleware(http.HandlerFunc(TasksHandler)))
+	mux.Handle("/", JSONMiddleware(http.HandlerFunc(Handler)))
+
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+	})
+	handler := c.Handler(mux)
+
 	log.Println("Server started at :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":8080", handler); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -46,6 +46,7 @@ func CreateTask(task *dto.Task) (*dto.Task, error) {
 func GetTasks() ([]dto.Task, error) {
 	rows, err := DB.Query("SELECT id, title, status FROM tasks")
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
@@ -66,6 +67,9 @@ func GetTasks() ([]dto.Task, error) {
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
 	}
-
+	if tasks == nil {
+		//return an empty slice instead of nil
+		tasks = []dto.Task{}
+	}
 	return tasks, err
 }
