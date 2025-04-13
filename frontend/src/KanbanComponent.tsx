@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import Task from "./Task.ts";
 
 interface KanbanComponentProps {
@@ -8,7 +8,9 @@ interface KanbanComponentProps {
 
 export default function KanbanComponent({ tasks }: Readonly<KanbanComponentProps>) {
     const [taskList, setTaskList] = useState(tasks);
-
+    useEffect(() => {
+        setTaskList(tasks);
+    }, [tasks]);
     const moveTask = (task: Task, newStatus: string) => {
         setTaskList(prevTasks =>
             prevTasks.map(t =>
