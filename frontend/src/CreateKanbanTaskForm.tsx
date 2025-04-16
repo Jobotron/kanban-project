@@ -22,33 +22,37 @@ export default function CreateKanbanTaskForm({ onCreate }: CreateKanbanTaskFormP
     };
 
     return (
-        <div>
-            <button onClick={showModal}>Add Task</button>
+        <>
+            <button onClick={showModal}
+            className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'>Add Task</button>
             {!hidden && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <button className="close" onClick={hideModal}>&times;</button>
-                        <form onSubmit={handleSubmit}>
+                <div className="fixed inset-0 bg-grey-800/50 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-lg shadow-lg p-6 w-1/2 h-1/2 relative">
+                        <button className="absolute top-2 right-2 text-red-500 hover:text-red-700" onClick={hideModal}>&times;</button>
+                        <form className="h-1/2 flex flex-col justify-between" onSubmit={handleSubmit}>
                             <input
                                 type="text"
                                 placeholder="Task Title"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 required
+                                className="w-full p-2 border border-gray-300 rounded mb-4"
                             />
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded mb-4"
                             >
                                 <option value="todo">To Do</option>
                                 <option value="in-progress">In Progress</option>
                                 <option value="done">Done</option>
                             </select>
-                            <button type="submit">Create Task</button>
+                            <button  type="submit"
+                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Create Task</button>
                         </form>
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 }
