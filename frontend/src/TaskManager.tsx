@@ -19,27 +19,24 @@ export default function TaskManager() {
             )
     }, []);
 
-    const createTask = (title: string, status: string): Promise<void> => {
-        return fetch('http://localhost:8080/tasks', {
-            method: 'POST',
-            body: JSON.stringify({
-                "title": title,
-                "status": status,
-            }),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then((newTask: Task) => {
-                setTasks((prevTasks) => [...prevTasks, newTask]);
-            })
-            .catch((error) => {
-                console.error('Error creating task:', error)
-                throw error;
+    const createTask = async (title: string, status: string): Promise<void> => {
+        try {
+            const response = await fetch('http://localhost:8080/tasks', {
+                method: 'POST',
+                body: JSON.stringify({
+                    "title": title,
+                    "status": status,
+                }),
             });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const newTask = await response.json();
+            setTasks((prevTasks) => [...prevTasks, newTask]);
+        } catch (error) {
+            console.error('Error creating task:', error);
+            throw error;
+        }
     }
 
     return (
