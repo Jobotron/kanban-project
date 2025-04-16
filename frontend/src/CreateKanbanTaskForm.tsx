@@ -1,11 +1,10 @@
 import { useState } from "react";
-import Task from "./Task.ts";
 
 interface CreateKanbanTaskFormProps {
-    onCreate: (title: string, status: string) => Promise<Task>;
+    onCreate: (title: string, status: string) => Promise<void>;
 }
 
-export default function CreateKanbanTaskForm({ onCreate}: CreateKanbanTaskFormProps) {
+export default function CreateKanbanTaskForm({ onCreate }: CreateKanbanTaskFormProps) {
     const [hidden, setHidden] = useState(true);
     const [title, setTitle] = useState("");
     const [status, setStatus] = useState("todo");
