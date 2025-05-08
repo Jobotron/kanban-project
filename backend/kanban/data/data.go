@@ -11,7 +11,7 @@ var DB *sql.DB
 
 func InitDB() {
 	var err error
-	DB, err = sql.Open("sqlite3", ":memory:")
+	DB, err = sql.Open("sqlite3", "tasks-db")
 	if err != nil {
 		log.Fatal(err)
 	}
