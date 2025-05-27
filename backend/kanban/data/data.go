@@ -11,7 +11,8 @@ var DB *sql.DB
 
 func InitDB() {
 	var err error
-	DB, err = sql.Open("sqlite3", ":memory:")
+	DB, err = sql.Open("sqlite3", "tasks.db")
+	err = DB.Ping()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -41,6 +42,32 @@ func CreateTask(task *dto.Task) (*dto.Task, error) {
 	}
 	task.ID = int(id)
 	return task, nil
+}
+
+func DeleteTask(id int) error {
+	_, err := DB.Exec("DELETE FROM tasks WHERE id = ?", id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func UpdateTask(task *dto.Task) (*dto.Task, error) {
+	tx, err := DB.Begin()
+	_, err = DB.Exec("Update tasks set title = ?, status = ?  where id = ?", task.Title, task.Status, task.ID)
+	if err != nil {
+		return nil, err
+	}
+	var res dto.Task
+	err = DB.QueryRow("Select id, title, status FROM tasks where id = ?", task.ID).Scan(&res.ID, &res.Title, &res.Status)
+
+	err = tx.Commit()
+
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
 }
 
 func GetTasks() ([]dto.Task, error) {
