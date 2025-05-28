@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 const ContentTypeJson = "application/json"
@@ -72,8 +73,31 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 			return
 		}
-	  //case http.MethodDelete:
-		default:
+	case http.MethodPut:
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		}
+		var task dto.Task
+		if err := json.Unmarshal(body, &task); err != nil {
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			return
+		}
+		task.ID, err = strconv.Atoi(r.PathValue(`task_id`))
+		if err != nil {
+			http.Error(w, "Id was not even a number really was it?", http.StatusBadRequest)
+
+		}
+		updatedTask, err := data.UpdateTask(&task)
+
+		w.WriteHeader(http.StatusOK)
+		err = json.NewEncoder(w).Encode(updatedTask)
+		if err != nil {
+			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+			return
+		}
+
+	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
