@@ -40,7 +40,7 @@ export default function TaskManager() {
     }
 
     return (
-        <div>
+        <div className=" h-full w-full">
             <KanbanComponent tasks={tasks} />
             <CreateKanbanTaskForm onCreate={createTask} />
         </div>

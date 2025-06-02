@@ -22,7 +22,7 @@ export default function KanbanComponent({ tasks }: Readonly<KanbanComponentProps
         taskList
             .filter(task => task.status === status)
             .map(task => (
-                <div key={task.id} className="p-4 mb-4 bg-white rounded-lg shadow">
+                <div key={task.id} className="p-4 mb-4 bg-white shadow">
                     <h3 className="text-lg text-cyan-950 font-semibold mb-2">{task.title}</h3>
                     {status !== 'todo' && (
                         <button
