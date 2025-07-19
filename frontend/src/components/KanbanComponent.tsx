@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import Task from "./Task.ts";
+import Task from "../models/Task.ts";
 
 interface KanbanComponentProps {
     tasks: Readonly<Task[]>;

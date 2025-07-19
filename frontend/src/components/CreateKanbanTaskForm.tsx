@@ -53,6 +53,6 @@ export default function CreateKanbanTaskForm({ onCreate }: CreateKanbanTaskFormP
                     </div>
                 </div>
             )}
-        <div/>
+        </div>
     );
 }
