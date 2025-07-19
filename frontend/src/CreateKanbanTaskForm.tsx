@@ -22,7 +22,7 @@ export default function CreateKanbanTaskForm({ onCreate }: CreateKanbanTaskFormP
     };
 
     return (
-        <>
+        <div>
             <button onClick={showModal}
             className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'>Add Task</button>
             {!hidden && (
@@ -53,6 +53,6 @@ export default function CreateKanbanTaskForm({ onCreate }: CreateKanbanTaskFormP
                     </div>
                 </div>
             )}
-        </>
+        <div/>
     );
 }

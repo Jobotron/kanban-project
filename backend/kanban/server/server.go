@@ -96,7 +96,6 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 			return
 		}
-
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}

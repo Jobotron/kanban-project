@@ -38,6 +38,20 @@ export default function TaskManager() {
             throw error;
         }
     }
+    
+    const updateTask = async (Task: t): Promise<void> => {
+    	try {
+	    const response = await fetch(`http://localhost:8080/tasks/${t.id}`, {
+	        method: 'PUT',
+		body: JSON.stringify(t)
+	    if (!response.ok) {
+	    	throw new Error("Error updating task")   
+	    }
+	    const newTask = await response.json()
+	    setTasks(prevTasks) => [...prevTasks, newTask])
+
+    }
+
 
     return (
         <div>
