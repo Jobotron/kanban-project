@@ -1,25 +1,17 @@
-import {useEffect, useState} from 'react';
 import Task from "../models/Task.ts";
 
 interface KanbanComponentProps {
     tasks: Readonly<Task[]>;
+    onMoveTask: (task: Task, newStatus: string) => void; // Add this callback
 }
 
-
-export default function KanbanComponent({ tasks }: Readonly<KanbanComponentProps>) {
-    const [taskList, setTaskList] = useState(tasks);
-    useEffect(() => {
-        setTaskList(tasks);
-    }, [tasks]);
+export default function KanbanComponent({ tasks, onMoveTask }: KanbanComponentProps) {
     const moveTask = (task: Task, newStatus: string) => {
-        setTaskList(prevTasks =>
-            prevTasks.map(t =>
-                t.id === task.id ? { ...t, status: newStatus } : t
-            )
-        );
+        onMoveTask(task, newStatus);
     };
+
     const renderTasks = (status: string) =>
-        taskList
+        tasks // Use props directly, not local state
             .filter(task => task.status === status)
             .map(task => (
                 <div key={task.id} className="p-4 mb-4 bg-white rounded-lg shadow">

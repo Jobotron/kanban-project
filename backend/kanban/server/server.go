@@ -2,14 +2,13 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/jobotron/kanban/data"
-	"github.com/jobotron/kanban/dto"
-	"github.com/rs/cors"
 	"io"
 	"log"
 	"net/http"
-	"strconv"
+
+	"github.com/jobotron/kanban/data"
+	"github.com/jobotron/kanban/dto"
+	"github.com/rs/cors"
 )
 
 const ContentTypeJson = "application/json"
@@ -20,13 +19,6 @@ func JSONMiddleware(next http.Handler) http.Handler {
 		w.Header().Set(ContentTypeHeader, ContentTypeJson)
 		next.ServeHTTP(w, r)
 	})
-}
-
-func Handler(w http.ResponseWriter, _ *http.Request) {
-	_, err := fmt.Fprintln(w, "Hello, world!")
-	if err != nil {
-		log.Println(err)
-	}
 }
 
 func TasksHandler(w http.ResponseWriter, r *http.Request) {
@@ -83,14 +75,12 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid JSON", http.StatusBadRequest)
 			return
 		}
-		task.ID, err = strconv.Atoi(r.PathValue(`task_id`))
-		if err != nil {
-			http.Error(w, "Id was not even a number really was it?", http.StatusBadRequest)
-
-		}
 		updatedTask, err := data.UpdateTask(&task)
+		if err != nil {
+			http.Error(w, "Failed to update task", http.StatusInternalServerError)
+			return
+		}
 
-		w.WriteHeader(http.StatusOK)
 		err = json.NewEncoder(w).Encode(updatedTask)
 		if err != nil {
 			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
@@ -105,7 +95,7 @@ func Start() {
 	mux := http.NewServeMux()
 
 	mux.Handle("/tasks", JSONMiddleware(http.HandlerFunc(TasksHandler)))
-	mux.Handle("/", JSONMiddleware(http.HandlerFunc(Handler)))
+	//mux.Handle("/", JSONMiddleware(http.HandlerFunc(Handler)))
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"},
