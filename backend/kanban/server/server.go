@@ -86,8 +86,30 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 			return
 		}
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	case http.MethodDelete:
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read request body", http.StatusBadRequest)
+			return
+
+		}
+		var task dto.Task
+		if err := json.Unmarshal(body, &task); err != nil {
+			http.Error(w, "Failed to read request body", http.StatusBadRequest)
+			return
+		}
+		err = data.DeleteTask(task.ID)
+		if err != nil {
+			http.Error(w, "Failed to delete task", http.StatusInternalServerError)
+			return
+		}
+		err = json.NewEncoder(w).Encode(task)
+		if err != nil {
+			http.Error(w,"Failed to write response", http.StatusInternalServerError)
+			return
+		}
+
+	default: http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 

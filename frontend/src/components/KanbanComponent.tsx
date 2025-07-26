@@ -2,12 +2,17 @@ import Task from "../models/Task.ts";
 
 interface KanbanComponentProps {
     tasks: Readonly<Task[]>;
-    onMoveTask: (task: Task, newStatus: string) => void; // Add this callback
+    onMoveTask: (task: Task, newStatus: string) => void; 
+    onDeleteTask: (task: Task) => void; // Add this callback
 }
 
-export default function KanbanComponent({ tasks, onMoveTask }: KanbanComponentProps) {
+export default function KanbanComponent({ tasks, onMoveTask, onDeleteTask }: KanbanComponentProps) {
     const moveTask = (task: Task, newStatus: string) => {
         onMoveTask(task, newStatus);
+    };
+
+    const deleteTask = (task: Task) => {
+        onDeleteTask(task);
     };
 
     const renderTasks = (status: string) =>
@@ -16,6 +21,7 @@ export default function KanbanComponent({ tasks, onMoveTask }: KanbanComponentPr
             .map(task => (
                 <div key={task.id} className="p-4 mb-4 bg-white rounded-lg shadow">
                     <h3 className="text-lg text-cyan-950 font-semibold mb-2">{task.title}</h3>
+                    <button className="align-right cursor-pointer text-red-500 hover:text-red-600" onClick={() => deleteTask(task)}>x</button>
                     {status !== 'todo' && (
                         <button
                             className="mr-2 text-xs text-blue-500 hover:underline"

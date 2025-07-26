@@ -19,7 +19,28 @@ export default function TaskManager() {
             .catch((error) => console.error('Error fetching tasks:', error)
             )
     }, []);
+    const deleteTask = async(t: Task): Promise<void> => {
+    	try {
+		    console.log("deleting task.")
+		    const response = await fetch(`${API_BASE_URL}/tasks`, {
+			    method: 'DELETE',
+			    body: JSON.stringify(t)
+            });
 
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error deleting task:', errorText);
+                throw new Error("Error deleting task");
+            }
+            setTasks(prevTasks => prevTasks.filter(task => task.id !== t.id)); // CORRECT - removes the task
+            console.log('Task deleted successfully');
+        }
+
+         catch (error) {
+            console.error('Error deleting task:', error);
+            throw error;
+        }
+    }
     const createTask = async (title: string, status: string): Promise<void> => {
         try {
             const response = await fetch(`${API_BASE_URL}/tasks`, {
@@ -70,11 +91,14 @@ export default function TaskManager() {
         console.log('Moving task:', updatedTask);
         await updateTask(updatedTask);
     };
+    const handleDeleteTask = async (task: Task) => {
+    	await deleteTask(task);
+    }
 
     
     return (
         <div>
-            <KanbanComponent onMoveTask={handleMoveTask} tasks={tasks} />
+            <KanbanComponent onDeleteTask={handleDeleteTask} onMoveTask={handleMoveTask} tasks={tasks} />
             <CreateKanbanTaskForm onCreate={createTask} />
         </div>
     )
