@@ -15,7 +15,7 @@ WORKDIR /app/kanban/cmd/server
 RUN echo "Listing files in /app/kanban/cmd/server:" && ls
 RUN mkdir -p 'app/bin'
 
-RUN CGO_ENABLED=1 GOOS=linux go build -o /app/bin/kanban-server
+RUN CGO_ENABLED=1 GOOS=linux go build -o /app/bin/kanban-server -a -ldflags '-linkmode external -extldflags "-static"' .
 RUN echo "Build completed. Listing files in /app/bin:" && ls app/bin
 
 # runtime image
