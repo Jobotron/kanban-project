@@ -2,9 +2,10 @@ package data
 
 import (
 	"database/sql"
-	"github.com/jobotron/kanban/dto"
-	_ "github.com/mattn/go-sqlite3"
+	"kanban/dto"
 	"log"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var DB *sql.DB

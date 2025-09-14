@@ -1,4 +1,4 @@
-module github.com/jobotron/kanban
+module kanban
 
 go 1.24.2
 
