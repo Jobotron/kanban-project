@@ -6,8 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/jobotron/kanban/data"
-	"github.com/jobotron/kanban/dto"
+	"kanban/data"
+	"kanban/dto"
+
 	"github.com/rs/cors"
 )
 
@@ -105,11 +106,12 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		err = json.NewEncoder(w).Encode(task)
 		if err != nil {
-			http.Error(w,"Failed to write response", http.StatusInternalServerError)
+			http.Error(w, "Failed to write response", http.StatusInternalServerError)
 			return
 		}
 
-	default: http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 

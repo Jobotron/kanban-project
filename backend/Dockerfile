@@ -1,22 +1,27 @@
-# base image
 FROM golang:1.24 AS builder
-# Set working directory
+
 WORKDIR /app
-# Copy Go modules and dependencies
-COPY ./kanban/* ./
+
+COPY kanban/go.mod kanban/go.sum ./
+
 RUN go mod download
-# Copy source code
+
 COPY . .
-# Build the application
-RUN go build -o main .
-# Use a minimal base image for final deployment
-FROM alpine:latest
+# Build the server binary
+WORKDIR /app/cmd/server
+RUN echo "Listing files in /app/cmd/server:" && ls
+RUN go build -o app/bin/kanban-server
+# runtime image
+
+FROM alpine:latest as runtime
 # Set working directory in the container
-WORKDIR /root/
+RUN useradd -m appuser
+WORKDIR /app
 # Copy the built binary from the builder stage
-COPY --from=builder /app/main .
+COPY --from=builder /app/bin/kanban-server .
 # Expose the application port
+USER appuser
 EXPOSE 8080
 # Run the application
-CMD ["./main"]
+CMD ["./kanban-server"]
 
