@@ -26,6 +26,9 @@ RUN adduser -D -h /app appuser
 WORKDIR /app
 # Copy the built binary from the builder stage
 COPY --from=builder /app/bin/kanban-server ./bin/kanban-server
+RUN chown -R appuser:appuser /app \
+    && chmod +x ./bin/kanban-server
+
 # Expose the application port
 USER appuser
 EXPOSE 8080
