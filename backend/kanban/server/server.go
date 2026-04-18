@@ -23,13 +23,13 @@ func New(queries *db.Queries) *Server {
 func (s *Server) Start() {
 	r := chi.NewRouter()
 
-	r.Use(middleware.Logger)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 	}))
+	r.Use(middleware.Logger)
 	r.Use(middleware.SetHeader("Content-Type", "application/json"))
 
 	r.Get("/tasks", s.getTasks)
