@@ -1,0 +1,104 @@
+version: "3"
+
+vars:
+  DOCKER_IMAGE: kanban-server
+  DOCKER_TAG: latest
+  BE_BIN: kanban-server
+
+tasks:
+  default:
+    desc: List available tasks
+    silent: true
+    cmds:
+      - task --list
+
+  # ── Frontend ────────────────────────────────────────────
+
+  fe:install:
+    desc: Install frontend dependencies
+    dir: frontend
+    cmds:
+      - npm install
+
+  fe:dev:
+    desc: Start frontend dev server
+    dir: frontend
+    cmds:
+      - npm run dev
+
+  fe:build:
+    desc: Build frontend for production
+    dir: frontend
+    deps: [fe:install]
+    cmds:
+      - npm run build
+
+  fe:lint:
+    desc: Lint frontend code
+    dir: frontend
+    cmds:
+      - npm run lint
+
+  # ── Backend ─────────────────────────────────────────────
+
+  be:build:
+    desc: Build backend binary
+    dir: backend/kanban
+    cmds:
+      - go build -o {{.BE_BIN}} ./cmd/server
+
+  be:run:
+    desc: Build and run backend server
+    dir: backend/kanban
+    deps: [be:build]
+    cmds:
+      - ./{{.BE_BIN}}
+
+  be:test:
+    desc: Run backend tests
+    dir: backend/kanban
+    cmds:
+      - go test ./...
+
+  be:lint:
+    desc: Lint backend code
+    dir: backend/kanban
+    cmds:
+      - go vet ./...
+
+  # ── Docker ──────────────────────────────────────────────
+
+  docker:build:
+    desc: Build backend Docker image
+    dir: backend
+    cmds:
+      - docker build -t {{.DOCKER_IMAGE}}:{{.DOCKER_TAG}} .
+
+  docker:run:
+    desc: Run backend Docker container
+    deps: [docker:build]
+    cmds:
+      - docker run --rm -p 8080:8080 {{.DOCKER_IMAGE}}:{{.DOCKER_TAG}}
+
+  # ── Composite ───────────────────────────────────────────
+
+  dev:
+    desc: Start frontend and backend in parallel (dev mode)
+    deps: [fe:install]
+    cmds:
+      - task --parallel fe:dev be:run
+
+  build:
+    desc: Build frontend and backend
+    cmds:
+      - task --parallel fe:build be:build
+
+  lint:
+    desc: Lint frontend and backend
+    cmds:
+      - task --parallel fe:lint be:lint
+
+  test:
+    desc: Run all tests
+    cmds:
+      - task be:test
