@@ -2,135 +2,102 @@ package server
 
 import (
 	"encoding/json"
-	"io"
 	"log"
 	"net/http"
 
-	"kanban/data"
-	"kanban/dto"
+	"kanban/db"
 
-	"github.com/rs/cors"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
-const ContentTypeJson = "application/json"
-const ContentTypeHeader = "Content-Type"
-
-func JSONMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set(ContentTypeHeader, ContentTypeJson)
-		next.ServeHTTP(w, r)
-	})
+type Server struct {
+	queries *db.Queries
 }
 
-func TasksHandler(w http.ResponseWriter, r *http.Request) {
-	// Handle task creation
-	switch r.Method {
-	case http.MethodGet:
-		tasks, err := data.GetTasks()
-		if err != nil {
-			http.Error(w, "Failed to retrieve tasks", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set(ContentTypeHeader, ContentTypeJson)
-		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(tasks)
-		if err != nil {
-			http.Error(w, "Failed to encode tasks", http.StatusInternalServerError)
-			return
-		}
-	case http.MethodPost:
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, "Failed to read request body", http.StatusBadRequest)
-			return
-		}
-
-		defer func(Body io.ReadCloser) {
-			_ = Body.Close()
-		}(r.Body)
-
-		var task dto.Task
-		if err := json.Unmarshal(body, &task); err != nil {
-			http.Error(w, "Invalid JSON", http.StatusBadRequest)
-			return
-		}
-
-		createdTask, err := data.CreateTask(&task)
-		if err != nil {
-			http.Error(w, "Failed to create task", http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusCreated)
-		err = json.NewEncoder(w).Encode(createdTask)
-		if err != nil {
-			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-			return
-		}
-	case http.MethodPut:
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, "Failed to read request body", http.StatusBadRequest)
-		}
-		var task dto.Task
-		if err := json.Unmarshal(body, &task); err != nil {
-			http.Error(w, "Invalid JSON", http.StatusBadRequest)
-			return
-		}
-		updatedTask, err := data.UpdateTask(&task)
-		if err != nil {
-			http.Error(w, "Failed to update task", http.StatusInternalServerError)
-			return
-		}
-
-		err = json.NewEncoder(w).Encode(updatedTask)
-		if err != nil {
-			http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-			return
-		}
-	case http.MethodDelete:
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, "Failed to read request body", http.StatusBadRequest)
-			return
-
-		}
-		var task dto.Task
-		if err := json.Unmarshal(body, &task); err != nil {
-			http.Error(w, "Failed to read request body", http.StatusBadRequest)
-			return
-		}
-		err = data.DeleteTask(task.ID)
-		if err != nil {
-			http.Error(w, "Failed to delete task", http.StatusInternalServerError)
-			return
-		}
-		err = json.NewEncoder(w).Encode(task)
-		if err != nil {
-			http.Error(w, "Failed to write response", http.StatusInternalServerError)
-			return
-		}
-
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
+func New(queries *db.Queries) *Server {
+	return &Server{queries: queries}
 }
 
-func Start() {
-	mux := http.NewServeMux()
+func (s *Server) Start() {
+	r := chi.NewRouter()
 
-	mux.Handle("/tasks", JSONMiddleware(http.HandlerFunc(TasksHandler)))
-	//mux.Handle("/", JSONMiddleware(http.HandlerFunc(Handler)))
-
-	c := cors.New(cors.Options{
+	r.Use(middleware.Logger)
+	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
-	})
-	handler := c.Handler(mux)
+	}))
+	r.Use(middleware.SetHeader("Content-Type", "application/json"))
+
+	r.Get("/tasks", s.getTasks)
+	r.Post("/tasks", s.createTask)
+	r.Put("/tasks", s.updateTask)
+	r.Delete("/tasks", s.deleteTask)
 
 	log.Println("Server started at :8080")
-	if err := http.ListenAndServe(":8080", handler); err != nil {
+	if err := http.ListenAndServe(":8080", r); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func (s *Server) getTasks(w http.ResponseWriter, r *http.Request) {
+	tasks, err := s.queries.GetTasks(r.Context())
+	if err != nil {
+		http.Error(w, "Failed to retrieve tasks", http.StatusInternalServerError)
+		return
+	}
+	if tasks == nil {
+		tasks = []db.Task{}
+	}
+	json.NewEncoder(w).Encode(tasks)
+}
+
+func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
+	var params db.CreateTaskParams
+	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+	task, err := s.queries.CreateTask(r.Context(), params)
+	if err != nil {
+		http.Error(w, "Failed to create task", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(task)
+}
+
+func (s *Server) updateTask(w http.ResponseWriter, r *http.Request) {
+	var req db.Task
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+	task, err := s.queries.UpdateTask(r.Context(), db.UpdateTaskParams{
+		Title:  req.Title,
+		Status: req.Status,
+		ID:     req.ID,
+	})
+	if err != nil {
+		http.Error(w, "Failed to update task", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(task)
+}
+
+func (s *Server) deleteTask(w http.ResponseWriter, r *http.Request) {
+	var req db.Task
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+	task, err := s.queries.DeleteTask(r.Context(), req.ID)
+	if err != nil {
+		http.Error(w, "Failed to delete task", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(task)
 }

@@ -1,5 +1,8 @@
 version: "3"
 
+env:
+  PATH: "{{.HOME}}/go/bin:{{.PATH}}"
+
 vars:
   DOCKER_IMAGE: kanban-server
   DOCKER_TAG: latest
@@ -41,9 +44,24 @@ tasks:
 
   # ── Backend ─────────────────────────────────────────────
 
+  be:generate:
+    desc: Generate sqlc code
+    dir: backend/kanban
+    sources:
+      - db/schema.sql
+      - db/query.sql
+      - sqlc.yaml
+    generates:
+      - db/db.go
+      - db/models.go
+      - db/query.sql.go
+    cmds:
+      - sqlc generate
+
   be:build:
     desc: Build backend binary
     dir: backend/kanban
+    deps: [be:generate]
     cmds:
       - go build -o {{.BE_BIN}} ./cmd/server
 
