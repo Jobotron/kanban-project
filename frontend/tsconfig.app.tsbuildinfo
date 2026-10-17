@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/KanbanComponent.tsx","./src/Task.ts","./src/main.tsx","./src/vite-env.d.ts"],"version":"5.6.2"}
+{"root":["./src/App.tsx","./src/TaskManager.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/CreateKanbanTaskForm.tsx","./src/components/KanbanComponent.tsx","./src/components/RichTextEditor.tsx","./src/hooks/useTasks.ts","./src/models/Task.ts"],"version":"5.8.3"}
