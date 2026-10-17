@@ -28,11 +28,13 @@ func InitDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// Migrate pre-existing databases; fails harmlessly if the column exists.
+	_, _ = DB.Exec("ALTER TABLE tasks ADD COLUMN description TEXT NOT NULL DEFAULT ''")
 }
 
 func CreateTask(task *dto.Task) (*dto.Task, error) {
-	res, err := DB.Exec("INSERT INTO tasks (title, status) VALUES (?, ?)",
-		task.Title, task.Status)
+	res, err := DB.Exec("INSERT INTO tasks (title, status, description) VALUES (?, ?, ?)",
+		task.Title, task.Status, task.Description)
 	if err != nil {
 		return nil, err
 	}
@@ -56,12 +58,12 @@ func DeleteTask(id int) error {
 
 func UpdateTask(task *dto.Task) (*dto.Task, error) {
 	tx, err := DB.Begin()
-	_, err = DB.Exec("Update tasks set title = ?, status = ?  where id = ?", task.Title, task.Status, task.ID)
+	_, err = DB.Exec("Update tasks set title = ?, status = ?, description = ? where id = ?", task.Title, task.Status, task.Description, task.ID)
 	if err != nil {
 		return nil, err
 	}
 	var res dto.Task
-	err = DB.QueryRow("Select id, title, status FROM tasks where id = ?", task.ID).Scan(&res.ID, &res.Title, &res.Status)
+	err = DB.QueryRow("Select id, title, status, description FROM tasks where id = ?", task.ID).Scan(&res.ID, &res.Title, &res.Status, &res.Description)
 
 	err = tx.Commit()
 
@@ -72,7 +74,7 @@ func UpdateTask(task *dto.Task) (*dto.Task, error) {
 }
 
 func GetTasks() ([]dto.Task, error) {
-	rows, err := DB.Query("SELECT id, title, status FROM tasks")
+	rows, err := DB.Query("SELECT id, title, status, description FROM tasks")
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -87,7 +89,7 @@ func GetTasks() ([]dto.Task, error) {
 	var tasks []dto.Task
 	for rows.Next() {
 		var task dto.Task
-		if err := rows.Scan(&task.ID, &task.Title, &task.Status); err != nil {
+		if err := rows.Scan(&task.ID, &task.Title, &task.Status, &task.Description); err != nil {
 			log.Fatal(err)
 		}
 		tasks = append(tasks, task)

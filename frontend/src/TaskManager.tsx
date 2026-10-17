@@ -41,13 +41,14 @@ export default function TaskManager() {
             throw error;
         }
     }
-    const createTask = async (title: string, status: string): Promise<void> => {
+    const createTask = async (title: string, status: string, description: string): Promise<void> => {
         try {
             const response = await fetch(`${API_BASE_URL}/tasks`, {
                 method: 'POST',
                 body: JSON.stringify({
                     "title": title,
                     "status": status,
+                    "description": description,
                 }),
             });
             if (!response.ok) {
@@ -97,9 +98,12 @@ export default function TaskManager() {
 
     
     return (
-        <div>
+        <main className="mx-auto max-w-7xl px-6 py-8">
+            <div className="mb-6 flex items-center justify-between">
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900">Kanban</h1>
+                <CreateKanbanTaskForm onCreate={createTask} />
+            </div>
             <KanbanComponent onDeleteTask={handleDeleteTask} onMoveTask={handleMoveTask} tasks={tasks} />
-            <CreateKanbanTaskForm onCreate={createTask} />
-        </div>
+        </main>
     )
 }
