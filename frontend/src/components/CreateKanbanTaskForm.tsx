@@ -51,7 +51,16 @@ export default function CreateKanbanTaskForm({ onCreate }: CreateKanbanTaskFormP
                     <div role="dialog" aria-modal="true" aria-labelledby="new-task-title" className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
                         <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
                             <h2 id="new-task-title" className="text-lg font-semibold text-slate-900">New task</h2>
-                            <button onClick={close} aria-label="Close" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">&times;</button>
+                            <button
+                                type="button"
+                                onClick={close}
+                                aria-label="Close"
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-4 w-4" aria-hidden>
+                                    <path d="M6 6l12 12M18 6L6 18" />
+                                </svg>
+                            </button>
                         </div>
                         <form className="flex flex-col gap-5 px-6 py-5" onSubmit={handleSubmit}>
                             <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-700">
