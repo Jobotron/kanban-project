@@ -28,9 +28,11 @@ export default function KanbanComponent({ tasks, onMoveTask, onDeleteTask }: Kan
                 <button
                     onClick={() => onDeleteTask(task)}
                     aria-label={`Delete ${task.title}`}
-                    className="rounded p-1 text-slate-400 opacity-0 transition hover:bg-red-50 hover:text-red-600 focus:opacity-100 group-hover:opacity-100"
+                    className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-transparent text-slate-400 opacity-0 transition hover:bg-red-50 hover:text-red-600 focus:opacity-100 group-hover:opacity-100"
                 >
-                    &times;
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-3.5 w-3.5" aria-hidden>
+                        <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
                 </button>
             </div>
             {task.description && (

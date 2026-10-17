@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useEditor, EditorContent, useEditorState } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -10,13 +11,13 @@ interface RichTextEditorProps {
 }
 
 interface ToolbarButtonProps {
-    label: string;
+    children: ReactNode;
     title: string;
     active: boolean;
     onClick: () => void;
 }
 
-function ToolbarButton({ label, title, active, onClick }: ToolbarButtonProps) {
+function ToolbarButton({ children, title, active, onClick }: ToolbarButtonProps) {
     return (
         <button
             type="button"
@@ -24,14 +25,51 @@ function ToolbarButton({ label, title, active, onClick }: ToolbarButtonProps) {
             aria-label={title}
             aria-pressed={active}
             onClick={onClick}
-            className={`h-8 min-w-8 px-2 rounded-md text-sm transition-colors ${
-                active ? "bg-indigo-100 text-indigo-700" : "text-slate-600 hover:bg-slate-100"
+            className={`inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+                active ? "bg-indigo-100 text-indigo-700" : "bg-transparent text-slate-700 hover:bg-slate-200"
             }`}
         >
-            {label}
+            {children}
         </button>
     );
 }
+
+const svgProps = {
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    className: "h-4 w-4",
+    "aria-hidden": true,
+} as const;
+
+const BulletIcon = () => (
+    <svg {...svgProps}>
+        <path d="M9 6h11M9 12h11M9 18h11" />
+        <circle cx="4.5" cy="6" r="1" fill="currentColor" />
+        <circle cx="4.5" cy="12" r="1" fill="currentColor" />
+        <circle cx="4.5" cy="18" r="1" fill="currentColor" />
+    </svg>
+);
+const OrderedIcon = () => (
+    <svg {...svgProps}>
+        <path d="M10 6h10M10 12h10M10 18h10M4 5l1-1v4M4 14h2l-2 3h2" />
+    </svg>
+);
+const CodeIcon = () => (
+    <svg {...svgProps}>
+        <path d="M8 7l-5 5 5 5M16 7l5 5-5 5" />
+    </svg>
+);
+const QuoteIcon = () => (
+    <svg {...svgProps}>
+        <path d="M4 6v6h5a4 4 0 01-4 4M14 6v6h5a4 4 0 01-4 4" />
+    </svg>
+);
+
+const Divider = () => <span className="mx-1 h-5 w-px bg-slate-300" />;
 
 function Toolbar({ editor }: { editor: Editor }) {
     const state = useEditorState({
@@ -49,17 +87,33 @@ function Toolbar({ editor }: { editor: Editor }) {
     });
 
     return (
-        <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 bg-slate-50 px-2 py-1.5">
-            <ToolbarButton label="B" title="Bold" active={state.bold} onClick={() => editor.chain().focus().toggleBold().run()} />
-            <ToolbarButton label="I" title="Italic" active={state.italic} onClick={() => editor.chain().focus().toggleItalic().run()} />
-            <ToolbarButton label="S" title="Strikethrough" active={state.strike} onClick={() => editor.chain().focus().toggleStrike().run()} />
-            <span className="mx-1 h-5 w-px bg-slate-200" />
-            <ToolbarButton label="H" title="Heading" active={state.h2} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} />
-            <ToolbarButton label="• List" title="Bulleted list" active={state.bullet} onClick={() => editor.chain().focus().toggleBulletList().run()} />
-            <ToolbarButton label="1. List" title="Numbered list" active={state.ordered} onClick={() => editor.chain().focus().toggleOrderedList().run()} />
-            <span className="mx-1 h-5 w-px bg-slate-200" />
-            <ToolbarButton label="&lt;/&gt;" title="Inline code" active={state.code} onClick={() => editor.chain().focus().toggleCode().run()} />
-            <ToolbarButton label="&ldquo;" title="Quote" active={state.quote} onClick={() => editor.chain().focus().toggleBlockquote().run()} />
+        <div className="flex flex-wrap items-center gap-0.5 border-b border-slate-200 bg-slate-50 px-2 py-1.5 rounded-t-lg">
+            <ToolbarButton title="Bold" active={state.bold} onClick={() => editor.chain().focus().toggleBold().run()}>
+                <span className="font-bold">B</span>
+            </ToolbarButton>
+            <ToolbarButton title="Italic" active={state.italic} onClick={() => editor.chain().focus().toggleItalic().run()}>
+                <span className="font-serif italic">I</span>
+            </ToolbarButton>
+            <ToolbarButton title="Strikethrough" active={state.strike} onClick={() => editor.chain().focus().toggleStrike().run()}>
+                <span className="line-through">S</span>
+            </ToolbarButton>
+            <Divider />
+            <ToolbarButton title="Heading" active={state.h2} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
+                <span className="font-semibold">H</span>
+            </ToolbarButton>
+            <ToolbarButton title="Bulleted list" active={state.bullet} onClick={() => editor.chain().focus().toggleBulletList().run()}>
+                <BulletIcon />
+            </ToolbarButton>
+            <ToolbarButton title="Numbered list" active={state.ordered} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
+                <OrderedIcon />
+            </ToolbarButton>
+            <Divider />
+            <ToolbarButton title="Inline code" active={state.code} onClick={() => editor.chain().focus().toggleCode().run()}>
+                <CodeIcon />
+            </ToolbarButton>
+            <ToolbarButton title="Quote" active={state.quote} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
+                <QuoteIcon />
+            </ToolbarButton>
         </div>
     );
 }
