@@ -7,8 +7,9 @@ help:
 	@echo "dev                Run frontend and backend concurrently"
 	@echo "frontend           Run frontend development server only"
 	@echo "backend            Run backend server only"
-	@echo "build              Build production artifacts (frontend dist + backend binary)"
-	@echo "lint               Run linters (frontend eslint)"
+	@echo "build              Build production artifacts (runs lint first)"
+	@echo "lint               Run all linters"
+	@echo "frontend-lint      Run frontend linter only"
 	@echo "clean              Remove build artifacts (alias for clean-build)"
 	@echo "clean-build        Remove build artifacts only"
 	@echo "clean-node         Remove node_modules and npm cache"
@@ -38,6 +39,11 @@ dev:
 frontend-dev:
 	cd frontend && npm run dev
 
+frontend-lint:
+	@echo "🔍 Running frontend linter..."
+	cd frontend && npm run lint
+	@echo "✅ Frontend linting passed!"
+
 backend-dev:
 	cd backend && go run ./kanban/cmd/server
 
@@ -49,12 +55,11 @@ backend:
 	cd backend && go run ./kanban/cmd/server
 
 # Linting
-lint:
-	@echo "🔍 Running linters..."
-	cd frontend && npm run lint
+lint: frontend-lint
+	@echo "✅ All linting passed!"
 
 # Build production artifacts
-build:
+build: frontend-lint
 	@echo "🔨 Building for production..."
 	@echo "Building frontend..."
 	cd frontend && npm run build
