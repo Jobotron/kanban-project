@@ -22,19 +22,19 @@ help:
 setup:
 	@echo "📦 Setting up project..."
 	@echo "Installing frontend dependencies..."
-	cd frontend && npm install
+	cd frontend && npm install --legacy-peer-deps
 	@echo "Downloading backend dependencies..."
-	cd backend && go mod download
+	cd backend/kanban && go mod download
 	@echo "✅ Setup complete!"
 
 # Development: Run both frontend and backend
 dev:
 	@echo "🚀 Starting development environment..."
-	concurrently \
+	cd frontend && npx concurrently \
 		--names "frontend,backend" \
 		--prefix "[{name}]" \
-		"make frontend-dev" \
-		"make backend-dev"
+		"npm run dev" \
+		"cd ../backend/kanban && go run ./cmd/server"
 
 frontend-dev:
 	cd frontend && npm run dev
